@@ -34,7 +34,7 @@ public class Utilidades {
 	private int portNumber;
 	private Properties prop;
 
-	private static final String PROPERTIES_FILE = System.getProperty("user.dir") + "/resources/sqlite-properties.xml";
+	private static final String PROPERTIES_FILE = System.getProperty("user.dir") + "/resources/h2-properties.xml";
 
 	public Utilidades() throws FileNotFoundException, IOException, InvalidPropertiesFormatException {
 		super();

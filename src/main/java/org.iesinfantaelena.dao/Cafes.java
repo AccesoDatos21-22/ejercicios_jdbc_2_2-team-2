@@ -148,7 +148,6 @@ public class Cafes {
                         + PRECIO + ", " + VENTAS + ", " + total);
             }
 
-
         } catch (SQLException sqle) {
             // En una aplicación real, escribo en el log y delego
             Utilidades.printSQLException(sqle);

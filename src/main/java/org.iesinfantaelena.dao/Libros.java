@@ -8,6 +8,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.iesinfantaelena.modelo.AccesoDatosException;
@@ -16,11 +17,8 @@ import org.iesinfantaelena.utils.Utilidades;
 
 
 /**
- * @author Carlos
+ * @author Gabo y Micha
  * @version 1.0
- * @descrition
- * @date 23/10/2021
- * @license GPLv3
  */
 
 public class Libros {
@@ -28,22 +26,22 @@ public class Libros {
     // Consultas a realizar en BD
 
 
-    private Connection con;
+    private final Connection con;
     private Statement stmt;
     private ResultSet rs;
     private PreparedStatement pstmt;
     private static final String INSERT_LIBRO_QUERY = "insert into LIBROS values (?,?,?,?,?,?)";
     private static final String SEARCH_LIBRO_QUERY = "select * from LIBROS WHERE ISBN = ?";
-    private static final String UPDATE_PAGINAS_QUERY = "update LIBROS set COPIAS ? WHERE ISBN = ?";
-    private static final String SEARCH_CATALOGO_QUERY = "select * from LIBROS";
+    private static final String UPDATE_PAGINAS_QUERY = "update LIBROS set COPIAS = ? WHERE ISBN = ?";
+    private static final String SELECT_LIBRO_QUERY = "select * from LIBROS";
     private static final String SEARCH_COLUMNAS_QUERY = "SELECT * FROM LIBROS";
     private static final String DELETE_LIBRO_QUERY = "delete from LIBROS WHERE ISBN = ?";
     private static final String SELECT_CAMPOS_QUERY = "SELECT * FROM LIBROS LIMIT 1";
+    private static final String CREATE_TABLE_LIBROS = "drop table if exists libros; create table libros (ISBN integer not null, TITULO varchar(50) not null, AUTOR varchar(50) not null, EDITORIAL varchar(25) not null, PAGINAS integer not null,COPIAS integer not null, constraint isbn_pk primary key (isbn));";
 
     /**
      * Constructor: inicializa conexión
      *
-     * @throws AccesoDatosException
      */
 
     public Libros() throws AccesoDatosException {
@@ -72,7 +70,6 @@ public class Libros {
     /**
      * Método para cerrar la conexión
      *
-     * @throws AccesoDatosException
      */
     public void cerrar() {
 
@@ -82,11 +79,106 @@ public class Libros {
 
     }
 
+    public void verCatalogoInverso() throws AccesoDatosException{
+        stmt = null;
+        /* Conjunto de Resultados a obtener de la sentencia sql */
+        ResultSet rs;
+        try {
+            // Creación de la sentencia
+            stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
+            // Ejecución de la consulta y obtención de resultados en un
+            // ResultSet
+            rs = stmt.executeQuery(SELECT_LIBRO_QUERY);
+            while (rs.previous()) {
+                Libro temp = new Libro();
+                int resISBN = rs.getInt("ISBN");
+                temp.setISBN(resISBN);
+                String titulo = rs.getString("TITULO");
+                temp.setTitulo(titulo);
+                String autor = rs.getString("AUTOR");
+                temp.setAutor(autor);
+                String editorial = rs.getString("EDITORIAL");
+                temp.setEditorial(editorial);
+                int paginas = rs.getInt("PAGINAS");
+                temp.setPaginas(paginas);
+                int copias = rs.getInt("COPIAS");
+                temp.setCopias(copias);
+                System.out.println(temp);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public void actualizarCopias(HashMap<Integer, Integer> copias) throws AccesoDatosException {
+        /* Sentencia sql */
+        pstmt = null;
+        stmt = null;
+        try {
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(SELECT_LIBRO_QUERY);
+            while (rs.next()) {
+                int isbn = rs.getInt("ISBN");
+                if (copias.containsKey(isbn)) {
+                    int libroCopias = rs.getInt("COPIAS");
+                    pstmt = con.prepareStatement(UPDATE_PAGINAS_QUERY);
+                    pstmt.setInt(1, copias.get(isbn)+libroCopias);
+                    pstmt.setInt(2, isbn);
+                    pstmt.executeUpdate();
+                }
+            }
+        } catch (SQLException sqle) {
+            // En una aplicación real, escribo en el log y delego
+            Utilidades.printSQLException(sqle);
+            throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
+        } finally {
+            liberar();
+        }
+    }
+
+    public void verCatalogo(int[] filas) throws AccesoDatosException {
+        /* Sentencia sql */
+        stmt = null;
+        /* Conjunto de Resultados a obtener de la sentencia sql */
+        ResultSet rs;
+        try {
+            // Creación de la sentencia
+            stmt = con.createStatement();
+            // Ejecución de la consulta y obtención de resultados en un
+            // ResultSet
+            rs = stmt.executeQuery(SELECT_LIBRO_QUERY);
+            while (rs.next()) {
+                int resISBN = rs.getInt("ISBN");
+                for (int cosa : filas) {
+                    if (cosa == resISBN) {
+                        Libro temp = new Libro();
+                        temp.setISBN(resISBN);
+                        String titulo = rs.getString("TITULO");
+                        temp.setTitulo(titulo);
+                        String autor = rs.getString("AUTOR");
+                        temp.setAutor(autor);
+                        String editorial = rs.getString("EDITORIAL");
+                        temp.setEditorial(editorial);
+                        int paginas = rs.getInt("PAGINAS");
+                        temp.setPaginas(paginas);
+                        int copias = rs.getInt("COPIAS");
+                        temp.setCopias(copias);
+                        System.out.println(temp);
+                    }
+                }
+
+            }
+
+        } catch (SQLException sqle) {
+            Utilidades.printSQLException(sqle);
+            throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
+        }
+
+    }
 
     /**
      * Método para liberar recursos
      *
-     * @throws AccesoDatosException
      */
     private void liberar() {
         try {
@@ -111,20 +203,19 @@ public class Libros {
     /**
      * Metodo que muestra por pantalla los datos de la tabla libros
      *
-     * @throws SQLException
      */
 
     public List<Libro> verCatalogo() throws AccesoDatosException {
         /* Sentencia sql */
         stmt = null;
         /* Conjunto de Resultados a obtener de la sentencia sql */
-        ResultSet rs = null;
+        ResultSet rs;
         try {
             // Creación de la sentencia
             stmt = con.createStatement();
             // Ejecución de la consulta y obtención de resultados en un
             // ResultSet
-            rs = stmt.executeQuery(SEARCH_CATALOGO_QUERY);
+            rs = stmt.executeQuery(SELECT_LIBRO_QUERY);
             List<Libro> libros =new ArrayList<>();
             while (rs.next()) {
                 Libro temp = new Libro();
@@ -154,14 +245,11 @@ public class Libros {
     /**
      * Actualiza el numero de copias para un libro
      *
-     * @param libro
-     * @throws AccesoDatosException
      */
 
     public void actualizarCopias(Libro libro) throws AccesoDatosException {
         /* Sentencia sql */
         pstmt = null;
-
         try {
 
             pstmt = con.prepareStatement(UPDATE_PAGINAS_QUERY);
@@ -174,9 +262,7 @@ public class Libros {
         } catch (SQLException sqle) {
             // En una aplicación real, escribo en el log y delego
             Utilidades.printSQLException(sqle);
-            throw new AccesoDatosException(
-                    "Ocurrió un error al acceder a los datos");
-
+            throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
         } finally {
             liberar();
         }
@@ -186,8 +272,6 @@ public class Libros {
     /**
      * Añade un nuevo libro a la BD
      *
-     * @param libro
-     * @throws AccesoDatosException
      */
     public void anadirLibro(Libro libro) throws AccesoDatosException {
 
@@ -222,8 +306,6 @@ public class Libros {
     /**
      * Borra un libro por ISBN
      *
-     * @param libro
-     * @throws AccesoDatosException
      */
 
     public void borrar(Libro libro) throws AccesoDatosException {
@@ -254,15 +336,13 @@ public class Libros {
     /**
      * Devuelve los nombres de los campos de BD
      *
-     * @return
-     * @throws AccesoDatosException
      */
 
     public String[] getCamposLibro() throws AccesoDatosException {
         /* Sentencia sql */
         stmt = null;
         /* Conjunto de Resultados a obtener de la sentencia sql */
-        ResultSet rs = null;
+        ResultSet rs;
         try {
             // Creación de la sentencia
             stmt = con.createStatement();
@@ -291,7 +371,7 @@ public class Libros {
         /* Sentencia sql */
         pstmt = null;
         /* Conjunto de Resultados a obtener de la sentencia sql */
-        ResultSet rs = null;
+        ResultSet rs;
         try {
             // Creación de la sentencia
             pstmt = con.prepareStatement(SEARCH_LIBRO_QUERY);
@@ -314,7 +394,7 @@ public class Libros {
                 int copias = rs.getInt("COPIAS");
                 temp.setCopias(copias);
 
-                System.out.println(temp.toString());
+                System.out.println(temp);
             }
 
         } catch (SQLException throwables) {
@@ -328,8 +408,8 @@ public class Libros {
         pstmt = null;
         /*Conjunto de Resultados a obtener de la sentencia sql*/
         rs= null;
-        ResultSetMetaData rsmd = null;
-        String[] campos = null;
+        ResultSetMetaData rsmd;
+        String[] campos;
         try {
             //Solicitamos a la conexion un objeto stmt para nuestra consulta
             pstmt = con.prepareStatement(SELECT_CAMPOS_QUERY);
@@ -363,23 +443,12 @@ public class Libros {
         /* Sentencia sql */
         stmt = null;
         /* Conjunto de Resultados a obtener de la sentencia sql */
-        ResultSet rs = null;
         try {
             // Creación de la sentencia
             stmt = con.createStatement();
             // Ejecución de la consulta y obtención de resultados en un
             // ResultSet
-            String com = "drop table if exists libros; create table libros ( " +
-                    "ISBN integer not null, " +
-                    "TITULO varchar(50) not null, " +
-                    "AUTOR varchar(50) not null, " +
-                    "EDITORIAL varchar(25) not null, " +
-                    "PAGINAS integer not null," +
-                    "COPIAS integer not null, " +
-                    "constraint isbn_pk primary key (isbn)" +
-                    ");";
-            stmt.executeUpdate(com);
-
+            stmt.executeUpdate(CREATE_TABLE_LIBROS);
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();

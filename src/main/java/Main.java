@@ -2,6 +2,7 @@ import org.iesinfantaelena.dao.Libros;
 import org.iesinfantaelena.modelo.AccesoDatosException;
 import org.iesinfantaelena.modelo.Libro;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class Main {
@@ -12,7 +13,7 @@ public static void main(String[] args) {
 		try {
             Libros libro = new Libros();
             Libro libro1 = new Libro(69, "Micha en el reino perdido", "Gabo Precioso", "Salvat", 2, 5);
-            Libro libro2 = new Libro(6969, "Micha en el reino de los dragones malotes", "Gabo Sigue Siendo Precioso", "Anaya", 1, 999999999);
+            Libro libro2 = new Libro(6969, "Micha en el reino de los dragones malotes", "Gabo Sigue Siendo Precioso", "Anaya", 1, 10);
 
             //Creamos la tabla libros
             libro.crearTablaLibros();
@@ -21,12 +22,23 @@ public static void main(String[] args) {
             libro.anadirLibro(libro1);
             libro.anadirLibro(libro2);
 
+            //Actualizamos copias
+            System.out.println("Actualizando copias");
+            HashMap<Integer, Integer> copias = new HashMap<>();
+            copias.put(69, 5);
+            copias.put(6969, 10);
+            libro.actualizarCopias(copias);
+
             //Vemos el catalogo de libros
             System.out.println("Libros: ");
             List<Libro> lista = libro.verCatalogo();
             for (Libro l : lista) {
                 System.out.println(l.toString());
             }
+
+            //Vemos el catalogo inverso
+            System.out.println("Catalogo inverso: ");
+            libro.verCatalogoInverso();
 
             //Buscamos un libro
             System.out.println("Buscando libro con ISBN: "+libro2.getISBN());
