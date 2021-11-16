@@ -1,4 +1,3 @@
-import org.iesinfantaelena.dao.Cafes;
 import org.iesinfantaelena.dao.Libros;
 import org.iesinfantaelena.modelo.AccesoDatosException;
 import org.iesinfantaelena.modelo.Libro;
