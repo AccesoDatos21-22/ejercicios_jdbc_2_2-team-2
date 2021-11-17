@@ -7,6 +7,7 @@ public class Libro {
 	private String editorial ;
 	private int paginas ;
 	private int copias ;
+	private float precio;
 	
 	public Libro() {
 		
@@ -19,6 +20,16 @@ public class Libro {
 		this.editorial = editorial;
 		this.paginas = paginas;
 		this.copias = copias;
+	}
+
+	public Libro(int ISBN,String titulo, String autor, String editorial, int paginas, int copias,float precio) {
+		this.ISBN = ISBN;
+		this.titulo = titulo;
+		this.autor = autor;
+		this.editorial = editorial;
+		this.paginas = paginas;
+		this.copias = copias;
+		this.precio = precio;
 	}
 	
 	
@@ -71,6 +82,14 @@ public class Libro {
 		this.copias = copias;
 	}
 
+	public float getPrecio() {
+		return precio;
+	}
+
+	public void setPrecio(float precio) {
+		this.precio = precio;
+	}
+
 	@Override
 	public String toString() {
 		return "Libro{" +
@@ -80,6 +99,7 @@ public class Libro {
 				", editorial='" + editorial + '\'' +
 				", paginas=" + paginas +
 				", copias=" + copias +
+				", precio=" + precio +
 				'}';
 	}
 }

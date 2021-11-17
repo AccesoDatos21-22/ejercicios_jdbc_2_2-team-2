@@ -13,7 +13,7 @@ public static void main(String[] args) {
 		try {
             Libros libro = new Libros();
             Libro libro1 = new Libro(69, "Micha en el reino perdido", "Gabo Precioso", "Salvat", 2, 5);
-            Libro libro2 = new Libro(6969, "Micha en el reino de los dragones malotes", "Gabo Sigue Siendo Precioso", "Anaya", 1, 10);
+            Libro libro2 = new Libro(6969, "Micha en el reino de los dragones malotes", "Gabo Sigue Siendo Precioso", "Anaya", 107, 10);
 
             //Creamos la tabla libros
             libro.crearTablaLibros();
@@ -21,6 +21,15 @@ public static void main(String[] args) {
             //Añadimos dos libros
             libro.anadirLibro(libro1);
             libro.anadirLibro(libro2);
+
+            //Actualizo el preicio
+            System.out.println("Cargnado precio...");
+            libro.calcularPrecioPorPagina((float) 0.5);
+
+
+            //Imprimimos las filas que quremos
+            System.out.println("Filas 1 y 2");
+            libro.verCatalogo(new int[]{2,1,3});
 
             //Actualizamos copias
             System.out.println("Actualizando copias");

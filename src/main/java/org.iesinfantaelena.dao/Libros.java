@@ -30,18 +30,18 @@ public class Libros {
     private Statement stmt;
     private ResultSet rs;
     private PreparedStatement pstmt;
-    private static final String INSERT_LIBRO_QUERY = "insert into LIBROS values (?,?,?,?,?,?)";
+    private static final String INSERT_LIBRO_QUERY = "insert into LIBROS (ISBN, TITULO, AUTOR, EDITORIAL, PAGINAS, COPIAS) values (?,?,?,?,?,?)";
     private static final String SEARCH_LIBRO_QUERY = "select * from LIBROS WHERE ISBN = ?";
     private static final String UPDATE_PAGINAS_QUERY = "update LIBROS set COPIAS = ? WHERE ISBN = ?";
+    private static final String UPDATE_PRECIO_QUERY = "update LIBROS set PRECIO = ? WHERE ISBN = ?";
     private static final String SELECT_LIBRO_QUERY = "select * from LIBROS";
     private static final String SEARCH_COLUMNAS_QUERY = "SELECT * FROM LIBROS";
     private static final String DELETE_LIBRO_QUERY = "delete from LIBROS WHERE ISBN = ?";
     private static final String SELECT_CAMPOS_QUERY = "SELECT * FROM LIBROS LIMIT 1";
-    private static final String CREATE_TABLE_LIBROS = "drop table if exists libros; create table libros (ISBN integer not null, TITULO varchar(50) not null, AUTOR varchar(50) not null, EDITORIAL varchar(25) not null, PAGINAS integer not null,COPIAS integer not null, constraint isbn_pk primary key (isbn));";
+    private static final String CREATE_TABLE_LIBROS = "drop table if exists libros; create table libros (ISBN integer not null, TITULO varchar(50) not null, AUTOR varchar(50) not null, EDITORIAL varchar(25) not null, PAGINAS integer not null,COPIAS integer not null,PRECIO float ,constraint isbn_pk primary key (isbn));";
 
     /**
      * Constructor: inicializa conexión
-     *
      */
 
     public Libros() throws AccesoDatosException {
@@ -69,7 +69,6 @@ public class Libros {
 
     /**
      * Método para cerrar la conexión
-     *
      */
     public void cerrar() {
 
@@ -79,16 +78,19 @@ public class Libros {
 
     }
 
-    public void verCatalogoInverso() throws AccesoDatosException{
+
+
+    public void verCatalogoInverso() throws AccesoDatosException {
         stmt = null;
         /* Conjunto de Resultados a obtener de la sentencia sql */
-        ResultSet rs;
+        rs = null;
         try {
             // Creación de la sentencia
-            stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
+            stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             // Ejecución de la consulta y obtención de resultados en un
             // ResultSet
             rs = stmt.executeQuery(SELECT_LIBRO_QUERY);
+            rs.afterLast();
             while (rs.previous()) {
                 Libro temp = new Libro();
                 int resISBN = rs.getInt("ISBN");
@@ -103,8 +105,32 @@ public class Libros {
                 temp.setPaginas(paginas);
                 int copias = rs.getInt("COPIAS");
                 temp.setCopias(copias);
+                float precio = rs.getFloat("PRECIO");
+                temp.setPrecio(precio);
                 System.out.println(temp);
             }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public void calcularPrecioPorPagina(float precio) {
+        pstmt = null;
+        stmt = null;
+        try {
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(SELECT_LIBRO_QUERY);
+            while (rs.next()) {
+                int paginas = rs.getInt("PAGINAS");
+                float precioFinal = precio * (float) paginas;
+                System.out.println(precioFinal);
+                pstmt = con.prepareStatement(UPDATE_PRECIO_QUERY);
+                pstmt.setFloat(1,precioFinal);
+                pstmt.setInt(2,rs.getInt("ISBN"));
+                pstmt.executeUpdate();
+            }
+
+
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -122,7 +148,7 @@ public class Libros {
                 if (copias.containsKey(isbn)) {
                     int libroCopias = rs.getInt("COPIAS");
                     pstmt = con.prepareStatement(UPDATE_PAGINAS_QUERY);
-                    pstmt.setInt(1, copias.get(isbn)+libroCopias);
+                    pstmt.setInt(1, copias.get(isbn) + libroCopias);
                     pstmt.setInt(2, isbn);
                     pstmt.executeUpdate();
                 }
@@ -148,10 +174,10 @@ public class Libros {
             // ResultSet
             rs = stmt.executeQuery(SELECT_LIBRO_QUERY);
             while (rs.next()) {
-                int resISBN = rs.getInt("ISBN");
-                for (int cosa : filas) {
-                    if (cosa == resISBN) {
+                for (int i =0;i<filas.length;i++) {
+                    if (filas[i] == rs.getRow()) {
                         Libro temp = new Libro();
+                        int resISBN = rs.getInt("ISBN");
                         temp.setISBN(resISBN);
                         String titulo = rs.getString("TITULO");
                         temp.setTitulo(titulo);
@@ -163,6 +189,8 @@ public class Libros {
                         temp.setPaginas(paginas);
                         int copias = rs.getInt("COPIAS");
                         temp.setCopias(copias);
+                        float precio = rs.getFloat("PRECIO");
+                        temp.setPrecio(precio);
                         System.out.println(temp);
                     }
                 }
@@ -178,7 +206,6 @@ public class Libros {
 
     /**
      * Método para liberar recursos
-     *
      */
     private void liberar() {
         try {
@@ -202,7 +229,6 @@ public class Libros {
 
     /**
      * Metodo que muestra por pantalla los datos de la tabla libros
-     *
      */
 
     public List<Libro> verCatalogo() throws AccesoDatosException {
@@ -216,7 +242,7 @@ public class Libros {
             // Ejecución de la consulta y obtención de resultados en un
             // ResultSet
             rs = stmt.executeQuery(SELECT_LIBRO_QUERY);
-            List<Libro> libros =new ArrayList<>();
+            List<Libro> libros = new ArrayList<>();
             while (rs.next()) {
                 Libro temp = new Libro();
                 int resISBN = rs.getInt("ISBN");
@@ -231,6 +257,8 @@ public class Libros {
                 temp.setPaginas(paginas);
                 int copias = rs.getInt("COPIAS");
                 temp.setCopias(copias);
+                float precio = rs.getFloat("PRECIO");
+                temp.setPrecio(precio);
 
                 libros.add(temp);
             }
@@ -244,7 +272,6 @@ public class Libros {
 
     /**
      * Actualiza el numero de copias para un libro
-     *
      */
 
     public void actualizarCopias(Libro libro) throws AccesoDatosException {
@@ -271,7 +298,6 @@ public class Libros {
 
     /**
      * Añade un nuevo libro a la BD
-     *
      */
     public void anadirLibro(Libro libro) throws AccesoDatosException {
 
@@ -287,6 +313,8 @@ public class Libros {
             pstmt.setString(4, libro.getEditorial());
             pstmt.setInt(5, libro.getPaginas());
             pstmt.setInt(6, libro.getCopias());
+//            pstmt.setFloat(7, libro.getPrecio());
+
             // Ejecución de la inserción
             pstmt.executeUpdate();
 
@@ -305,7 +333,6 @@ public class Libros {
 
     /**
      * Borra un libro por ISBN
-     *
      */
 
     public void borrar(Libro libro) throws AccesoDatosException {
@@ -335,7 +362,6 @@ public class Libros {
 
     /**
      * Devuelve los nombres de los campos de BD
-     *
      */
 
     public String[] getCamposLibro() throws AccesoDatosException {
@@ -351,10 +377,10 @@ public class Libros {
             rs = stmt.executeQuery(SEARCH_COLUMNAS_QUERY);
             int columnCount = rs.getMetaData().getColumnCount();
 
-            String []names=new String[columnCount];
-            for (int i=0; i<columnCount; i++) {
+            String[] names = new String[columnCount];
+            for (int i = 0; i < columnCount; i++) {
 
-                String columnName = rs.getMetaData().getColumnName(i+1);
+                String columnName = rs.getMetaData().getColumnName(i + 1);
                 names[i] = columnName;
 
             }
@@ -393,6 +419,8 @@ public class Libros {
                 temp.setPaginas(paginas);
                 int copias = rs.getInt("COPIAS");
                 temp.setCopias(copias);
+                float precio = rs.getFloat("PRECIO");
+                temp.setPrecio(precio);
 
                 System.out.println(temp);
             }
@@ -407,7 +435,7 @@ public class Libros {
         /*Sentencia sql con parámetros de entrada*/
         pstmt = null;
         /*Conjunto de Resultados a obtener de la sentencia sql*/
-        rs= null;
+        rs = null;
         ResultSetMetaData rsmd;
         String[] campos;
         try {
@@ -433,7 +461,7 @@ public class Libros {
             throw new AccesoDatosException(
                     "Ocurrió un error al acceder a los datos");
 
-        } finally{
+        } finally {
             liberar();
         }
     }
