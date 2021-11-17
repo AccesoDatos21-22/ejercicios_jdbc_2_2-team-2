@@ -118,16 +118,13 @@ public class Libros {
         pstmt = null;
         stmt = null;
         try {
-            stmt = con.createStatement();
+            stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
             rs = stmt.executeQuery(SELECT_LIBRO_QUERY);
             while (rs.next()) {
                 int paginas = rs.getInt("PAGINAS");
                 float precioFinal = precio * (float) paginas;
-                System.out.println(precioFinal);
-                pstmt = con.prepareStatement(UPDATE_PRECIO_QUERY);
-                pstmt.setFloat(1,precioFinal);
-                pstmt.setInt(2,rs.getInt("ISBN"));
-                pstmt.executeUpdate();
+                rs.updateFloat("PRECIO",precioFinal);
+                rs.updateRow();
             }
 
 
@@ -141,16 +138,14 @@ public class Libros {
         pstmt = null;
         stmt = null;
         try {
-            stmt = con.createStatement();
+            stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
             rs = stmt.executeQuery(SELECT_LIBRO_QUERY);
             while (rs.next()) {
                 int isbn = rs.getInt("ISBN");
                 if (copias.containsKey(isbn)) {
                     int libroCopias = rs.getInt("COPIAS");
-                    pstmt = con.prepareStatement(UPDATE_PAGINAS_QUERY);
-                    pstmt.setInt(1, copias.get(isbn) + libroCopias);
-                    pstmt.setInt(2, isbn);
-                    pstmt.executeUpdate();
+                    rs.updateInt("COPIAS",libroCopias+copias.get(isbn));
+                    rs.updateRow();
                 }
             }
         } catch (SQLException sqle) {

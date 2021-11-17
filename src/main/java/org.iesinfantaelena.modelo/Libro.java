@@ -22,17 +22,6 @@ public class Libro {
 		this.copias = copias;
 	}
 
-	public Libro(int ISBN,String titulo, String autor, String editorial, int paginas, int copias,float precio) {
-		this.ISBN = ISBN;
-		this.titulo = titulo;
-		this.autor = autor;
-		this.editorial = editorial;
-		this.paginas = paginas;
-		this.copias = copias;
-		this.precio = precio;
-	}
-	
-	
 
 	public int getISBN() {
 		return ISBN;
