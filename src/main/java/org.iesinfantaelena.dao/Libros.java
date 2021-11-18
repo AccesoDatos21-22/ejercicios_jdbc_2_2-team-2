@@ -114,8 +114,8 @@ public class Libros {
         }
     }
 
-    public void calcularPrecioPorPagina(float precio) {
-        pstmt = null;
+    public void rellenaPrecio(float precio) {
+
         stmt = null;
         try {
             stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
@@ -135,7 +135,7 @@ public class Libros {
 
     public void actualizarCopias(HashMap<Integer, Integer> copias) throws AccesoDatosException {
         /* Sentencia sql */
-        pstmt = null;
+
         stmt = null;
         try {
             stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
@@ -202,6 +202,7 @@ public class Libros {
     /**
      * Método para liberar recursos
      */
+
     private void liberar() {
         try {
             // Liberamos todos los recursos pase lo que pase
@@ -263,6 +264,50 @@ public class Libros {
         }
         return null;
 
+    }
+
+    public void actualizaPrecio(int isbn1, int isbn2, float precio) throws AccesoDatosException{
+        stmt = null;
+        /* Conjunto de Resultados a obtener de la sentencia sql */
+        pstmt = null;
+        PreparedStatement pstmt2 = null;
+
+        try {
+            con.setAutoCommit(false);
+            // Creación de la sentencia
+//            stmt = con.createStatement();
+            // Ejecución de la consulta y obtención de resultados en un
+            // ResultSet
+//            rs = stmt.executeQuery(SELECT_LIBRO_QUERY);
+            pstmt = con.prepareStatement(SEARCH_LIBRO_QUERY);
+            pstmt2 = con.prepareStatement(UPDATE_PRECIO_QUERY);
+
+
+            int paginasLibroGrande = 0;
+            while (rs.next()) {
+                int libroISBN = rs.getInt("isbn");
+                if (libroISBN == isbn1 || libroISBN == isbn2) {
+                    int libroPaginas = rs.getInt("paginas");
+                    if (paginasLibroGrande < libroPaginas) {
+                        paginasLibroGrande = libroPaginas;
+                    }
+                }
+
+            }
+            float precioFinal = paginasLibroGrande * precio;
+            pstmt = con.prepareStatement(UPDATE_PRECIO_QUERY);
+            pstmt.setInt(2,isbn1);
+            pstmt.setFloat(1,precioFinal);
+            pstmt.executeUpdate();
+            pstmt = con.prepareStatement(UPDATE_PRECIO_QUERY);
+            pstmt.setInt(2,isbn2);
+            pstmt.setFloat(1,precioFinal);
+            pstmt.executeUpdate();
+
+        } catch (SQLException throwables) {
+            Utilidades.printSQLException(throwables);
+            throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
+        }
     }
 
     /**
