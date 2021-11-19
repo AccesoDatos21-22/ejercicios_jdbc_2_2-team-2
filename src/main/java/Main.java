@@ -22,13 +22,18 @@ public static void main(String[] args) {
             libro.anadirLibro(libro1);
             libro.anadirLibro(libro2);
 
+            //Copio el segundo
+            System.out.println("Clonando el segundo libro");
+            libro.copiaLibro(6969,777);
+
             //Actualizo el preicio
             System.out.println("Cargnado precio...");
             libro.rellenaPrecio((float) 0.5);
 
             //Actualizando el precio de los dos libros
-            System.out.println("Actualizando el precio de los dos libros");
+            System.out.println("Actualizando el precio del libro 69 y del 6969");
             libro.actualizaPrecio2(libro1.getISBN(),libro2.getISBN(),(float) 5,50);
+
             //Vemos el catalogo de libros
             System.out.println("Libros: ");
             List<Libro> lista = libro.verCatalogo();
@@ -45,6 +50,7 @@ public static void main(String[] args) {
             HashMap<Integer, Integer> copias = new HashMap<>();
             copias.put(69, 5);
             copias.put(6969, 10);
+            copias.put(777, 59);
             libro.actualizarCopias(copias);
 
             //Vemos el catalogo de libros

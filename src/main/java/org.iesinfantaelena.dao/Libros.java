@@ -308,6 +308,44 @@ public class Libros {
             throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
         }
     }
+
+    public void copiaLibro(int isbn1, int isbn2) throws AccesoDatosException {
+        stmt = null;
+        try {
+            stmt = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
+            rs = stmt.executeQuery(SELECT_LIBRO_QUERY);
+            while (rs.next()) {
+                int isbn = rs.getInt("isbn");
+                if (isbn == isbn1) {
+                    Libro libro = new Libro();
+                    libro.setAutor(rs.getString("autor"));
+                    libro.setEditorial(rs.getString("editorial"));
+                    libro.setTitulo(rs.getString("titulo"));
+                    libro.setCopias(rs.getInt("copias"));
+                    libro.setPaginas(rs.getInt("paginas"));
+                    libro.setPrecio(rs.getFloat("precio"));
+                    libro.setISBN(isbn2);
+
+                    rs.moveToInsertRow();
+                    rs.updateInt("isbn",libro.getISBN());
+                    rs.updateString("autor", libro.getAutor());
+                    rs.updateString("editorial", libro.getEditorial());
+                    rs.updateString("titulo",libro.getTitulo());
+                    rs.updateInt("copias", libro.getCopias());
+                    rs.updateInt("paginas", libro.getPaginas());
+                    rs.updateDouble("precio", libro.getPrecio());
+                    rs.insertRow();
+                }
+            }
+
+
+        } catch (SQLException e) {
+            Utilidades.printSQLException(e);
+            throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
+        }
+    }
+
+
     public void actualizaPrecio2(int isbn1, int isbn2, float precio, int paginas) throws AccesoDatosException{
         stmt = null;
         /* Conjunto de Resultados a obtener de la sentencia sql */
