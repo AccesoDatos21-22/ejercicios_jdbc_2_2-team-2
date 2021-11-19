@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.iesinfantaelena.modelo.AccesoDatosException;
+import org.iesinfantaelena.modelo.Cafe;
 import org.iesinfantaelena.utils.Utilidades;
 
 /**
@@ -52,20 +53,20 @@ public class Cafes {
             stmt = con.createStatement();
             rs = null;
             pstmt = null;
-//        		stmt.executeUpdate(CREATE_TABLE_PROVEEDORES);
-//        		stmt.executeUpdate(CREATE_TABLE_CAFES);
-//        		stmt.executeUpdate("insert into proveedores values(49, 'PROVerior Coffee', '1 Party Place', 'Mendocino', 'CA', '95460');");
-//        		stmt.executeUpdate("insert into proveedores values(101, 'Acme, Inc.', '99 mercado CALLE', 'Groundsville', 'CA', '95199');");
-//        		stmt.executeUpdate("insert into proveedores values(150, 'The High Ground', '100 Coffee Lane', 'Meadows', 'CA', '93966');");
-//
+        		stmt.executeUpdate(CREATE_TABLE_PROVEEDORES);
+        		stmt.executeUpdate(CREATE_TABLE_CAFES);
+        		stmt.executeUpdate("insert into proveedores values(49, 'PROVerior Coffee', '1 Party Place', 'Mendocino', 'CA', '95460');");
+        		stmt.executeUpdate("insert into proveedores values(101, 'Acme, Inc.', '99 mercado CALLE', 'Groundsville', 'CA', '95199');");
+        		stmt.executeUpdate("insert into proveedores values(150, 'The High Ground', '100 Coffee Lane', 'Meadows', 'CA', '93966');");
+
         } catch (IOException e) {
-            // Error al leer propiedades
-            // En una aplicación real, escribo en el log y delego
-            //System.err.println(e.getMessage());
+//             Error al leer propiedades
+//             En una aplicación real, escribo en el log y delego
+            System.err.println(e.getMessage());
 
         } catch (SQLException sqle) {
-            // En una aplicación real, escribo en el log y delego
-            //Utilidades.printSQLException(sqle);
+//             En una aplicación real, escribo en el log y delego
+            Utilidades.printSQLException(sqle);
 
 
         } finally {
@@ -155,6 +156,51 @@ public class Cafes {
                     "Ocurrió un error al acceder a los datos");
         } finally {
             liberar();
+        }
+
+    }
+
+    public void transferencia(String cafe1, String cafe2) throws AccesoDatosException{
+
+        stmt = null;
+        try {
+
+            con.setAutoCommit(false);
+            stmt = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
+            rs = stmt.executeQuery(SELECT_CAFES_QUERY);
+
+            Cafe cafe = new Cafe();
+
+            boolean terminao = false;
+            boolean terminaoDeVerdad = false;
+            while (rs.next() && !terminaoDeVerdad) {
+                String caf_nombre = rs.getString("CAF_NOMBRE");
+                if (caf_nombre == cafe1 && terminao == false) {
+                    cafe.setVentas(rs.getInt("VENTAS"));
+                    rs.updateInt("VENTAS",0);
+                    rs.updateRow();
+                    terminao = true;
+                    rs.beforeFirst();
+                }
+
+                if (caf_nombre == cafe2 && terminao) {
+                    rs.updateInt("VENTAS",cafe.getVentas() + rs.getInt("VENTAS"));
+                    rs.updateRow();
+                    terminaoDeVerdad = true;
+                }
+            }
+
+            con.commit();
+
+        } catch (SQLException e) {
+            try {
+                con.rollback();
+            } catch (SQLException throwables) {
+                Utilidades.printSQLException(throwables);
+                throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
+            }
+            Utilidades.printSQLException(e);
+            throw new AccesoDatosException("Ocurrio un error al acceder a los datos");
         }
 
     }

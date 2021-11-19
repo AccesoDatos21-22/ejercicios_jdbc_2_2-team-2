@@ -1,3 +1,4 @@
+import org.iesinfantaelena.dao.Cafes;
 import org.iesinfantaelena.dao.Libros;
 import org.iesinfantaelena.modelo.AccesoDatosException;
 import org.iesinfantaelena.modelo.Libro;
@@ -11,6 +12,20 @@ public static void main(String[] args) {
 
 
 		try {
+
+            Cafes cafes = new Cafes();
+            cafes.insertar("Cafetito", 150, 1.0f, 150,1000);
+            cafes.insertar("Cafe tacilla", 150, 2.0f, 110,1000);
+
+            //Vemos la tabla de cafes
+            cafes.verTabla();
+
+            //Hacemos la transferencia del primer cafe al segundo
+            System.out.println("Transfiriendo primer cafe al segundo");
+            cafes.transferencia("Cafetito","Cafe tacilla");
+            cafes.verTabla();
+
+
             Libros libro = new Libros();
             Libro libro1 = new Libro(69, "Micha en el reino perdido", "Gabo Precioso", "Salvat", 50, 5);
             Libro libro2 = new Libro(6969, "Micha en el reino de los dragones malotes", "Gabo Sigue Siendo Precioso", "Anaya", 100, 10);
