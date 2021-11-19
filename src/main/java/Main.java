@@ -12,8 +12,8 @@ public static void main(String[] args) {
 
 		try {
             Libros libro = new Libros();
-            Libro libro1 = new Libro(69, "Micha en el reino perdido", "Gabo Precioso", "Salvat", 200, 5);
-            Libro libro2 = new Libro(6969, "Micha en el reino de los dragones malotes", "Gabo Sigue Siendo Precioso", "Anaya", 107, 10);
+            Libro libro1 = new Libro(69, "Micha en el reino perdido", "Gabo Precioso", "Salvat", 50, 5);
+            Libro libro2 = new Libro(6969, "Micha en el reino de los dragones malotes", "Gabo Sigue Siendo Precioso", "Anaya", 100, 10);
 
             //Creamos la tabla libros
             libro.crearTablaLibros();
@@ -28,7 +28,7 @@ public static void main(String[] args) {
 
             //Actualizando el precio de los dos libros
             System.out.println("Actualizando el precio de los dos libros");
-            libro.actualizaPrecio(libro1.getISBN(),libro2.getISBN(),(float) 5);
+            libro.actualizaPrecio2(libro1.getISBN(),libro2.getISBN(),(float) 5,50);
             //Vemos el catalogo de libros
             System.out.println("Libros: ");
             List<Libro> lista = libro.verCatalogo();
