@@ -63,6 +63,8 @@ public class Libros {
             Utilidades.printSQLException(sqle);
             throw new AccesoDatosException(
                     "Ocurrió un error al acceder a los datos");
+        } finally {
+            liberar();
         }
     }
 
@@ -111,12 +113,15 @@ public class Libros {
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+        } finally {
+            liberar();
         }
     }
 
     public void rellenaPrecio(float precio) {
 
         stmt = null;
+        rs = null;
         try {
             stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
             rs = stmt.executeQuery(SELECT_LIBRO_QUERY);
@@ -130,6 +135,8 @@ public class Libros {
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+        } finally {
+            liberar();
         }
     }
 
@@ -137,6 +144,7 @@ public class Libros {
         /* Sentencia sql */
 
         stmt = null;
+        rs = null;
         try {
             stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
             rs = stmt.executeQuery(SELECT_LIBRO_QUERY);
@@ -161,7 +169,7 @@ public class Libros {
         /* Sentencia sql */
         stmt = null;
         /* Conjunto de Resultados a obtener de la sentencia sql */
-        ResultSet rs;
+        rs = null;
         try {
             // Creación de la sentencia
             stmt = con.createStatement();
@@ -195,6 +203,8 @@ public class Libros {
         } catch (SQLException sqle) {
             Utilidades.printSQLException(sqle);
             throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
+        } finally {
+            liberar();
         }
 
     }
@@ -228,10 +238,11 @@ public class Libros {
      */
 
     public List<Libro> verCatalogo() throws AccesoDatosException {
+
         /* Sentencia sql */
         stmt = null;
         /* Conjunto de Resultados a obtener de la sentencia sql */
-        ResultSet rs;
+        rs = null;
         try {
             // Creación de la sentencia
             stmt = con.createStatement();
@@ -261,6 +272,8 @@ public class Libros {
             return libros;
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+        } finally {
+            liberar();
         }
         return null;
 
@@ -269,9 +282,9 @@ public class Libros {
     public void actualizaPrecio(int isbn1, int isbn2, float precio) throws AccesoDatosException{
         stmt = null;
         /* Conjunto de Resultados a obtener de la sentencia sql */
+        rs = null;
         try {
             con.setAutoCommit(false);
-
             stmt = con.createStatement();
             rs = stmt.executeQuery(SELECT_LIBRO_QUERY);
             int paginasLibroGrande = 0;
@@ -306,11 +319,19 @@ public class Libros {
             }
             Utilidades.printSQLException(throwables);
             throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
+        } finally {
+            try {
+                con.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            liberar();
         }
     }
 
     public void copiaLibro(int isbn1, int isbn2) throws AccesoDatosException {
         stmt = null;
+        rs = null;
         try {
             stmt = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
             rs = stmt.executeQuery(SELECT_LIBRO_QUERY);
@@ -342,6 +363,8 @@ public class Libros {
         } catch (SQLException e) {
             Utilidades.printSQLException(e);
             throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
+        } finally {
+            liberar();
         }
     }
 
@@ -349,6 +372,7 @@ public class Libros {
     public void actualizaPrecio2(int isbn1, int isbn2, float precio, int paginas) throws AccesoDatosException{
         stmt = null;
         /* Conjunto de Resultados a obtener de la sentencia sql */
+        rs = null;
         try {
             con.setAutoCommit(false);
 
@@ -388,6 +412,13 @@ public class Libros {
             }
             Utilidades.printSQLException(throwables);
             throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
+        } finally {
+            try {
+                con.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            liberar();
         }
     }
 
@@ -488,7 +519,7 @@ public class Libros {
         /* Sentencia sql */
         stmt = null;
         /* Conjunto de Resultados a obtener de la sentencia sql */
-        ResultSet rs;
+        rs = null;
         try {
             // Creación de la sentencia
             stmt = con.createStatement();
@@ -507,6 +538,8 @@ public class Libros {
             return names;
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+        } finally {
+            liberar();
         }
         return null;
 
@@ -517,7 +550,7 @@ public class Libros {
         /* Sentencia sql */
         pstmt = null;
         /* Conjunto de Resultados a obtener de la sentencia sql */
-        ResultSet rs;
+        rs = null;
         try {
             // Creación de la sentencia
             pstmt = con.prepareStatement(SEARCH_LIBRO_QUERY);
@@ -547,6 +580,8 @@ public class Libros {
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+        } finally {
+            liberar();
         }
     }
 
@@ -591,6 +626,7 @@ public class Libros {
         /* Sentencia sql */
         stmt = null;
         /* Conjunto de Resultados a obtener de la sentencia sql */
+        rs = null;
         try {
             // Creación de la sentencia
             stmt = con.createStatement();
@@ -600,6 +636,8 @@ public class Libros {
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+        } finally {
+            liberar();
         }
 
 

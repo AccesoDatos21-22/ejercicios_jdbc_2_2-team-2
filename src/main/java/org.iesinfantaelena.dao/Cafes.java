@@ -201,6 +201,13 @@ public class Cafes {
             }
             Utilidades.printSQLException(e);
             throw new AccesoDatosException("Ocurrio un error al acceder a los datos");
+        }finally {
+            try {
+                con.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            liberar();
         }
 
     }

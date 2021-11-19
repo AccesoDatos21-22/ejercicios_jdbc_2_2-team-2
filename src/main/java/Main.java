@@ -41,9 +41,16 @@ public static void main(String[] args) {
             System.out.println("Clonando el segundo libro");
             libro.copiaLibro(6969,777);
 
-            //Actualizo el preicio
+            //Relleno el preicio
             System.out.println("Cargnado precio...");
             libro.rellenaPrecio((float) 0.5);
+
+            //Vemos el catalogo de libros
+            System.out.println("Libros: ");
+            List<Libro> lista = libro.verCatalogo();
+            for (Libro l : lista) {
+                System.out.println(l.toString());
+            }
 
             //Actualizando el precio de los dos libros
             System.out.println("Actualizando el precio del libro 69 y del 6969");
@@ -51,7 +58,7 @@ public static void main(String[] args) {
 
             //Vemos el catalogo de libros
             System.out.println("Libros: ");
-            List<Libro> lista = libro.verCatalogo();
+            lista = libro.verCatalogo();
             for (Libro l : lista) {
                 System.out.println(l.toString());
             }
@@ -86,6 +93,7 @@ public static void main(String[] args) {
             //Borramos un libro
             System.out.println("Borrando libro: "+ libro1);
             libro.borrar(libro1);
+
             //Volvemos a ver el catalogo de libros
             System.out.println("Libros: ");
             lista = libro.verCatalogo();
