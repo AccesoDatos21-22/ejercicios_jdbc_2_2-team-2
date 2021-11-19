@@ -24,7 +24,7 @@ public static void main(String[] args) {
             System.out.println("Transfiriendo primer cafe al segundo");
             cafes.transferencia("Cafetito","Cafe tacilla");
             cafes.verTabla();
-
+            cafes.cerrar();
 
             Libros libro = new Libros();
             Libro libro1 = new Libro(69, "Micha en el reino perdido", "Gabo Precioso", "Salvat", 50, 5);
